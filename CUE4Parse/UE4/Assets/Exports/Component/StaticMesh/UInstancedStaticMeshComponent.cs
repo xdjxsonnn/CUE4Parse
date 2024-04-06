@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 
 namespace CUE4Parse.UE4.Assets.Exports.Component.StaticMesh
 {
+
     public class UInstancedStaticMeshComponent : UStaticMeshComponent
     {
         public FInstancedStaticMeshInstanceData[]? PerInstanceSMData;
@@ -14,21 +15,27 @@ namespace CUE4Parse.UE4.Assets.Exports.Component.StaticMesh
         {
             base.Deserialize(Ar, validPos);
 
-            if (Ar.Owner?.Provider?.InternalGameName.ToUpper() == "FORTNITEGAME")
+            /*            if (Ar.Owner?.Provider?.InternalGameName.ToUpper() == "FORTNITEGAME")
+                        {
+                            var read = Ar.Read<uint>();
+                            switch (read)
+                            {
+                                case 1:
+                                    Ar.Position += 60;
+                                    break;
+                                case 53009:
+                                    Ar.Position += 52;
+                                    break;
+                                default:
+                                    Debugger.Break();
+                                    break;
+                            }
+                        }*/
+
+            PerInstanceSMData = Ar.ReadBulkArray(() => new FInstancedStaticMeshInstanceData(Ar));
+            if (FRenderingObjectVersion.Get(Ar) >= FRenderingObjectVersion.Type.PerInstanceCustomData)
             {
-                var read = Ar.Read<uint>();
-                switch (read)
-                {
-                    case 1:
-                        Ar.Position += 60;
-                        break;
-                    case 53009:
-                        Ar.Position += 52;
-                        break;
-                    default:
-                        Debugger.Break();
-                        break;
-                }
+                PerInstanceSMCustomData = Ar.ReadBulkArray(Ar.Read<float>);
             }
 
             var bCooked = false;
